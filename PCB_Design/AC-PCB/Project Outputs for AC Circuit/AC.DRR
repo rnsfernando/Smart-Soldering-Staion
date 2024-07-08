@@ -1,0 +1,25 @@
+----------------------------------------------------------------------------------------------------------------------------------
+NCDrill File Report For: AC.PcbDoc   4/16/2024  11:15:18 PM
+----------------------------------------------------------------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : AC.TXT
+
+Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
+----------------------------------------------------------------------------------------------------------------------------------
+T1      0.65mm (26mil)                                            Round             6         PTH        61.46mm (2.42inch)
+T2      0.7mm (28mil)                                             Round             6         PTH        17.78mm (0.70inch)
+T3      0.75mm (30mil)                                            Round             6         PTH        17.78mm (0.70inch)
+T4      0.85mm (33mil)                                            Round             2         PTH        7.50mm (0.30inch)
+T5      0.9mm (35mil)                                             Round             3         PTH        5.00mm (0.20inch)
+T6      1.01mm (40mil)                                            Round             4         PTH        15.30mm (0.60inch)
+T7      1.092mm (43mil)                                           Round             2         PTH        21.74mm (0.86inch)
+T8      1.3mm (51mil)                                             Round             4         PTH        26.67mm (1.05inch)
+T9      1.32mm (52mil)                                            Round             3         PTH        5.10mm (0.20inch)
+T10     2.67mm (105mil)                                           Round             2         PTH        25.40mm (1.00inch)
+T11     3.2mm (126mil)                                            Round             4         PTH        171.81mm (6.76inch)
+T12     1.1mm (43mil)                                             Round             1         NPTH       0.00mm (0.00inch)
+----------------------------------------------------------------------------------------------------------------------------------
+Totals                                                                              43
+
+Total Processing Time (hh:mm:ss) : 00:00:00

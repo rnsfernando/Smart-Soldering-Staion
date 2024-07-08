@@ -1,0 +1,10 @@
+Output: Report Board Stack
+Type  : Report Board Stack
+From  : Project [AC Circuit.PrjPcb]
+   Generated File[AC.xls]
+
+
+Files Generated   : 1
+Documents Printed : 0
+
+Finished Output Generation At 8:59:27 AM On 6/22/2024
