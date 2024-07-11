@@ -1,0 +1,358 @@
+#include <PID_v1.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <EEPROM.h>
+#include <Wire.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define SCREEN_ADDRESS 0x3C
+
+#define PB_BACK 8
+#define PB_OK 7
+#define PB_UP 4
+#define PB_DOWN 2
+
+bool in_temp_display = false;
+bool in_menu1 = false;
+bool in_choice = false;
+
+String gun_iron[2] = {"Both", "Hot air gun"};
+int selected = 0;
+String menu1[2] = {"Sleep Mode", "Tip Change"};
+int select_m1 = 0;
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+int temperaturePin_iron = 23; // Pin for iron temperature sensor
+int temperaturePin_gun = 24;  // Pin for hot air gun temperature sensor
+int controlPinIron = 16;      // Pin for iron control
+int controlPinGun = 17;       // Pin for hot air gun control
+int Setpoint_iron = 150;
+int Setpoint_gun = 150;
+
+bool sleeping = false;
+unsigned long last_activity_time = 0;
+unsigned long sleep_duration = 60000; // 1 minute for testing
+
+double aggKp = 4, aggKi = 0.2, aggKd = 1;
+double consKp = 1, consKi = 0.05, consKd = 0.25;
+
+double Input_iron; // Moved to global scope
+double Output_iron;
+double Setpoint;
+
+double Input_gun;
+double Output_gun;
+
+PID myPIDIron(&Input_iron, &Output_iron, &Setpoint_iron, consKp, consKi, consKd, DIRECT);
+PID myPIDGun(&Input_gun, &Output_gun, &Setpoint_gun, consKp, consKi, consKd, DIRECT);
+
+void setup() {
+    Serial.begin(9600);
+    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+        Serial.println(F("SSD1306 allocation failed"));
+        for (;;)
+            ;
+    }
+    EEPROM.put(0, Setpoint_iron);
+
+    pinMode(controlPinIron, OUTPUT);
+    pinMode(controlPinGun, OUTPUT);
+    pinMode(temperaturePin_iron, INPUT);
+    pinMode(temperaturePin_gun, INPUT);
+    pinMode(PB_BACK, INPUT);
+    pinMode(PB_OK, INPUT);
+    pinMode(PB_UP, INPUT);
+    pinMode(PB_DOWN, INPUT);
+
+    display.display();
+    delay(2000);
+    display.clearDisplay();
+    display.setTextSize(3);
+    display.setTextColor(SSD1306_WHITE);
+    display.println("Welcome!");
+    display.display();
+    delay(2000);
+    in_choice = true;
+    last_activity_time = millis();
+
+    // Initialize the PID instances
+    myPIDIron.SetMode(AUTOMATIC);
+    myPIDGun.SetMode(AUTOMATIC);
+}
+
+void loop() {
+    if (in_choice) {
+        go_to_menu();
+    }
+    if (selected && in_temp_display) {
+        display_temp(Setpoint_gun);
+    } else if (!selected && in_temp_display) {
+        int set = EEPROM.get(0, Setpoint_iron);
+        display_temp(set);
+    }
+
+    if (in_menu1) {
+        go_to_menu1();
+    }
+
+    checkSleepMode();
+
+    // PID for iron
+    Input_iron = readTemperature(temperaturePin_iron);
+    int fSetpointIron = EEPROM.get(0, Setpoint_iron);
+    double gapIron = abs(fSetpointIron - Input_iron);
+
+    if (gapIron < 10) {
+        myPIDIron.SetTunings(consKp, consKi, consKd);
+    } else {
+        myPIDIron.SetTunings(aggKp, aggKi, aggKd);
+    }
+
+    myPIDIron.Compute();
+    analogWrite(controlPinIron, Output_iron);
+
+    // PID for hot air gun
+    Input_gun = readTemperature(temperaturePin_gun);
+    double gapGun = abs(Setpoint_gun - Input_gun);
+
+    if (gapGun < 10) {
+        myPIDGun.SetTunings(consKp, consKi, consKd);
+    } else {
+        myPIDGun.SetTunings(aggKp, aggKi, aggKd);
+    }
+
+    myPIDGun.Compute();
+    analogWrite(controlPinGun, Output_gun);
+}
+
+void display_A_Menu(int arrowIndex, String Arr[], int Arr_len, int textSize) {
+    display.clearDisplay();
+    display.setTextSize(textSize);
+    for (int i = 0; i < Arr_len; i++) {
+        display.setCursor(0, i * 10);
+        if (i == arrowIndex) {
+            display.print("> ");
+        } else {
+            display.print("  ");
+        }
+        display.println(Arr[i]);
+    }
+    display.display();
+}
+
+int wait_for_button_press() {
+    while (true) {
+        if (digitalRead(PB_UP) == LOW) {
+            delay(200);
+            return PB_UP;
+        }
+        if (digitalRead(PB_DOWN) == LOW) {
+            delay(200);
+            return PB_DOWN;
+        }
+        if (digitalRead(PB_OK) == LOW) {
+            delay(200);
+            return PB_OK;
+        }
+        if (digitalRead(PB_BACK) == LOW) {
+            delay(200);
+            return PB_BACK;
+        }
+    }
+}
+
+void go_to_menu() {
+    while (digitalRead(PB_BACK) == HIGH) {
+        display.clearDisplay();
+        display_A_Menu(selected, gun_iron, 2, 1);
+        int pressed = wait_for_button_press();
+        if (pressed == PB_UP) {
+            delay(200);
+            selected += 1;
+            if (selected > 1) {
+                selected = 0;
+            }
+            display_A_Menu(selected, gun_iron, 2, 1);
+        } else if (pressed == PB_DOWN) {
+            delay(200);
+            selected -= 1;
+            if (selected < 0) {
+                selected = 1;
+            }
+            display_A_Menu(selected, gun_iron, 2, 1);
+        } else if (pressed == PB_OK) {
+            delay(200);
+            in_choice = false;
+            in_temp_display = true;
+            last_activity_time = millis(); // Update activity time
+            break;
+        } else if (pressed == PB_BACK) {
+            delay(200);
+            // Do something if needed
+        }
+    }
+}
+
+void display_temp(int setpoint) {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 20);
+    if (selected) {
+        display.print("Set Gun Temp: ");
+    } else {
+        display.print("Set Iron Temp: ");
+    }
+    display.print(setpoint);
+    display.println(" C");
+    display.display();
+
+    int pressed = wait_for_button_press();
+    if (pressed == PB_BACK) {
+        delay(200);
+        in_choice = true;
+    } else if (pressed == PB_UP) {
+        delay(200);
+        if (selected) {
+            Setpoint_gun += 1;
+            if (Setpoint_gun > 400) {
+                Setpoint_gun = 400;
+            }
+        } else {
+            setpoint += 1;
+            if (setpoint > 400) {
+                setpoint = 400;
+            }
+            EEPROM.update(0, setpoint);
+        }
+        last_activity_time = millis(); // Update activity time
+    } else if (pressed == PB_DOWN) {
+        delay(200);
+        if (selected) {
+            Setpoint_gun -= 1;
+            if (Setpoint_gun < 150) {
+                Setpoint_gun = 150;
+            }
+        } else {
+            setpoint -= 1;
+            if (setpoint < 150) {
+                setpoint = 150;
+            }
+            EEPROM.update(0, setpoint);
+        }
+        last_activity_time = millis(); // Update activity time
+    } else if (pressed == PB_OK) {
+        delay(200);
+        if (!selected) {
+            in_choice = false;
+            in_temp_display = false;
+            in_menu1 = true;
+        }
+    }
+}
+
+void go_to_menu1() {
+    while (digitalRead(PB_BACK) == HIGH) {
+        display.clearDisplay();
+        display_A_Menu(select_m1, menu1, 2, 1);
+        int pressed = wait_for_button_press();
+        if (pressed == PB_UP) {
+            delay(200);
+            select_m1 += 1;
+            if (select_m1 > 1) {
+                select_m1 = 0;
+            }
+            display_A_Menu(select_m1, menu1, 2, 1);
+        } else if (pressed == PB_DOWN) {
+            delay(200);
+            select_m1 -= 1;
+            if (select_m1 < 0) {
+                select_m1 = 1;
+            }
+            display_A_Menu(select_m1, menu1, 2, 1);
+        } else if (pressed == PB_OK) {
+            delay(200);
+            int mode = select_m1;
+            run_mode(mode);
+        } else if (pressed == PB_BACK) {
+            delay(200);
+            in_choice = false;
+            in_menu1 = false;
+            in_temp_display = true;
+            break;
+        }
+    }
+}
+
+void run_mode(int mode) {
+    if (mode == 0) {
+        sleepMode();
+    } else if (mode == 1) {
+        tipChange();
+    }
+}
+
+double readTemperature(int pin) {
+    double Input = analogRead(pin);
+    Input = map(Input, 0, 450, 25, 350);
+    return Input;
+}
+
+void checkSleepMode() {
+    if (millis() - last_activity_time > sleep_duration && !sleeping) {
+        sleepMode();
+        sleeping = true;
+    }
+}
+
+void wakeUp() {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 20);
+    display.println("Waking up...");
+    display.display();
+    delay(1000);
+    sleeping = false;
+    last_activity_time = millis();
+    display.clearDisplay();
+}
+
+void sleepMode() {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 20);
+    display.println("Sleeping...");
+    display.display();
+    delay(1000);
+    // Enter low power mode or stop heating elements
+    analogWrite(controlPinIron, 0);
+    analogWrite(controlPinGun, 0); // Stop the hot air gun as well
+    while (true) {
+        if (digitalRead(PB_OK) == LOW || digitalRead(PB_UP) == LOW || digitalRead(PB_DOWN) == LOW || digitalRead(PB_BACK) == LOW) {
+            wakeUp();
+            break;
+        }
+    }
+}
+
+void tipChange() {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 20);
+    display.println("Tip Changed");
+    display.display();
+    delay(1000);
+    // Lower temperature for safe tip change
+    int original_setpoint = EEPROM.get(0, Setpoint_iron);
+    Setpoint_iron = 100; // Example lower temperature
+    EEPROM.update(0, Setpoint_iron);
+    delay(5000); // Wait for 5 seconds
+    Setpoint_iron = original_setpoint;
+    EEPROM.update(0, Setpoint_iron);
+}
