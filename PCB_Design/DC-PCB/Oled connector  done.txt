@@ -1,0 +1,31 @@
+Oled connector  done
+buzzer
+current control done
+sensoer input
+cooling fan
+led(not ness)
+
+**** rotery encoder
+pins to code 
+
+
+
+24 v fan (24 nvolt ouyput
+)
+oled ekata 3.3 ekkakuth danna
+two switched for iron and hot air gun
+
+
+
+power circuit heat sink size care 
+
+power circuit heat sink 
+
+resistor voltage double cheak
+
+5V 5V CONNECT VENATHAN 24 CONNECT VENA CONNECTORS EKA LAGA THYANNA
+
+oni socket tika venama balanna
+
+ho
+
