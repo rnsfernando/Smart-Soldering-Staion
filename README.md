@@ -20,6 +20,7 @@ This soldering station utilizes the ATmega328P microcontroller for temperature c
 
 ## System Block Diagram
 The system block diagram illustrates the main components and their interactions within the soldering station. The microcontroller reads the temperature sensor and controls the heating element to maintain the desired temperature. The user interface allows the user to set the temperature and view the current status.
+<img src="images/Block-Diagram.jpg" alt="DC-PCB" width="500"/>
 
 ## Schematic Diagram
 ![Schematic Diagram](Images/schematic.png)
@@ -52,11 +53,6 @@ The PCB layout shows the placement of components on the board. The design optimi
 ### AC-PCB
 <img src="images/printed-pcb-ac.jpg" alt="AC-PCB" width="300"/>
 
-
-
-
-
-
 ## Component List
 - **Microcontroller:** ATmega328P
 - **Display:** 16x2 LCD screen
@@ -64,6 +60,9 @@ The PCB layout shows the placement of components on the board. The design optimi
 - **Controls:** Push buttons
 - **Heating Element:** Soldering iron
 - **Other Components:** Resistors, capacitors, connectors
+
+## Wiring Diagram
+<img src="images/wiring.jpg" alt="AC-PCB" width="300"/>
 
 ## Microcontroller Programming
 The ATmega328P microcontroller is programmed using Atmel Studio. Follow these steps to configure and upload the code:
