@@ -26,17 +26,33 @@ The system block diagram illustrates the main components and their interactions 
 The schematic diagram provides a detailed view of the electrical connections and components used in the soldering station.
 
 ## PCB Layout
-### 2D View
-![2D View](Images/2Dview.png)
+
+### DC PCB
+#### Top Layer
+<img src="images/top-layer.png" alt="DC-PCB" width="300"/>
+#### Bottom Layer
+<img src="images/bottom-layer.png" alt="AC-PCB" width="300"/>
+
+### AC PCB
+#### Top Layer
+<img src="images/toplayer.png" alt="DC-PCB" width="300"/>
+#### Bottom Layer
+<img src="images/bottom-layer (2).png" alt="AC-PCB" width="300"/>
+
+
 ### 3D View
-![3D View](Images/3Dview.png)
+<img src="images/3Dview.png" alt="AC-PCB" width="400"/>
 The PCB layout shows the placement of components on the board. The design optimizes space and ensures proper heat dissipation.
 
-## PCB Layout
-### 2D View
-![DC-PCB](images/printed-pcb-dc.jpg)
-### 3D View
-![AC-PCB](images/printed-pcb-ac.jpg)
+## Printed PCB
+
+### DC PCB
+<img src="images/printed-pcb-dc.jpg" alt="DC-PCB" width="300"/>
+
+### AC-PCB
+<img src="images/printed-pcb-ac.jpg" alt="AC-PCB" width="300"/>
+
+
 
 
 
