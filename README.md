@@ -32,6 +32,15 @@ The schematic diagram provides a detailed view of the electrical connections and
 ![3D View](Images/3Dview.png)
 The PCB layout shows the placement of components on the board. The design optimizes space and ensures proper heat dissipation.
 
+## PCB Layout
+### 2D View
+![DC-PCB](images/printed-pcb-dc.jpg)
+### 3D View
+![AC-PCB](images/printed-pcb-ac.jpg)
+
+
+
+
 ## Component List
 - **Microcontroller:** ATmega328P
 - **Display:** 16x2 LCD screen
