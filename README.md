@@ -23,7 +23,6 @@ The system block diagram illustrates the main components and their interactions 
 <img src="images/Block-diagram.jpg.jpg" alt="Block-Diagram" width="500"/>
 
 ## Schematic Diagram
-![Schematic Diagram](Images/schematic.png)
 The schematic diagram provides a detailed view of the electrical connections and components used in the soldering station.
 
 ## PCB Layout
