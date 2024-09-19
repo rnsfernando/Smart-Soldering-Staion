@@ -1,12 +1,13 @@
 # Smart-Soldering-Staion
 The SmartSolder Station is a high-performance soldering solution with a soldering iron and hot air gun. 
-Features:
--Advanced PID Temperature control
--Rapid Heating
--Sleep Mode
--Tip Change Mode
--Energy Efficient
--Reliable soldering.
+#### Features:
+
+-Advanced PID Temperature Control  
+-Rapid Heating  
+-Sleep Mode  
+-Tip Change Mode  
+-Energy Efficient  
+-Reliable Soldering
 
  Explore our documentation, schematics, and source code to build your own state-of-the-art soldering station.
 
